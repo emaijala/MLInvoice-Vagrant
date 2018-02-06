@@ -12,7 +12,7 @@ echo "postfix postfix/mailname string `hostname --domain`" | debconf-set-selecti
 apt-get -y update
 apt-get -y upgrade
 
-apt-get -y install apache2 php libapache2-mod-php php-xml php-curl php-mcrypt php-mbstring mysql-server php-mysql unzip mailutils
+apt-get -y install apache2 php libapache2-mod-php php-xml php-curl php-mcrypt php-mbstring mysql-server php-mysql php-zip unzip mailutils
 
 a2enmod rewrite
 
