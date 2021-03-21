@@ -65,6 +65,8 @@ unzip -o /tmp/*.zip
 cd /data/mlinvoice
 cp -n config.php.sample config.php
 sed -i -r "s/define\('_DB_PASSWORD_', '.*?'\);/define('_DB_PASSWORD_', '$MYSQL_MLINVOICE_PASSWORD');/" config.php
+KEY=`tr -dc A-Za-z0-9 </dev/urandom | head -c 32`
+sed -i -r "s/define\('_ENCRYPTION_KEY_', '.*?'\);/define('_ENCRYPTION_KEY_', '$KEY');/" config.php
 
 if [ $NEWDB -eq 1 ]; then
   mysqladmin -uroot --skip-password create mlinvoice
