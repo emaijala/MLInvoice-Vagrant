@@ -12,7 +12,10 @@ echo "postfix postfix/mailname string `hostname --domain`" | debconf-set-selecti
 apt-get -y update
 apt-get -y upgrade
 
-apt-get -y install apache2 php libapache2-mod-php php-xml php-curl php-mcrypt php-mbstring mysql-server php-mysql php-zip unzip mailutils
+apt-get -y install apache2 php libapache2-mod-php php-xml php-curl php-mbstring mysql-server php-mysql php-zip unzip mailutils
+
+# multipath spams journal. Since we don't need it, just remove it.
+apt-get -y remove multipath-tools
 
 a2enmod rewrite
 
@@ -36,7 +39,9 @@ systemctl restart postfix
 
 echo "Configuring MySQL"
 systemctl stop mysql
-sed -i -r "s/datadir\s*=.*/datadir = \/data\/mysql\/db/" /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i -r "s/(#\s*)?datadir\s*=.*/datadir = \/data\/mysql\/db/" /etc/mysql/mysql.conf.d/mysqld.cnf
+echo "[mysqld]" > /etc/mysql/mysql.conf.d/no-native-aio.cnf
+echo "innodb_use_native_aio = 0" >> /etc/mysql/mysql.conf.d/no-native-aio.cnf
 ln -s /etc/apparmor.d/usr.sbin.mysqld /etc/apparmor.d/disable/
 apparmor_parser -R /etc/apparmor.d/usr.sbin.mysqld
 NEWDB=0
@@ -66,7 +71,8 @@ if [ $NEWDB -eq 1 ]; then
   cat << EOF | mysql -uroot --skip-password
 use mlinvoice;
 source /data/mlinvoice/create_database.sql;
-grant all on mlinvoice.* to 'mlinvoice'@'localhost' identified by '$MYSQL_MLINVOICE_PASSWORD';
+create user 'mlinvoice'@'localhost' identified by '$MYSQL_MLINVOICE_PASSWORD';
+grant all on mlinvoice.* to 'mlinvoice'@'localhost';
 alter user 'root'@'localhost' identified by '$MYSQL_ROOT_PASSWORD';
 flush privileges;
 EOF
@@ -74,3 +80,4 @@ else
   echo "Using existing MLInvoice database found in data/mysql"
 fi
 echo "Installation complete"
+
