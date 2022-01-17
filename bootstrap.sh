@@ -56,7 +56,7 @@ systemctl start mysql
 
 cd /tmp
 echo "Checking MLInvoice version information"
-ZIP=`curl -s https://www.labs.fi/mlinvoice_version.php | grep package | sed -e 's/.*\(http.*\)".*/\1/'`
+ZIP=`curl -s 'https://www.labs.fi/mlinvoice_version.php?channel=production&filename=1'`
 rm -rf *.zip
 echo "Downloading $ZIP"
 wget -q $ZIP
